@@ -1,79 +1,103 @@
 import 'package:flutter/material.dart';
-import '../widgets/app_drawer.dart';
+import 'dart:convert';
+import 'package:http/http.dart' as http;
+import 'product_detail.dart';
+import 'package:flutter_midterm/models/product.dart';
 
-class ProductScreen extends StatelessWidget {
+class ProductScreen extends StatefulWidget {
   const ProductScreen({super.key});
 
-  final List<Map<String, dynamic>> products = const [
-    {'name': 'ໂທລະສັບ', 'price': '1,500,000 ກີບ', 'icon': Icons.phone_android},
-    {
-      'name': 'ຄອມພິວເຕີ',
-      'price': '4,500,000 ກີບ',
-      'icon': Icons.laptop_chromebook,
-    },
-    {'name': 'ຫູຟັງ', 'price': '250,000 ກີບ', 'icon': Icons.headset},
-    {'name': 'ໂມງ', 'price': '800,000 ກີບ', 'icon': Icons.watch},
-  ];
+  @override
+  State<ProductScreen> createState() => _ProductScreenState();
+}
+
+class _ProductScreenState extends State<ProductScreen> {
+  List<Product> products = [];
+  bool isLoading = true;
+  String? errorMessage;
+
+  @override
+  void initState() {
+    super.initState();
+    fetchProducts();
+  }
+
+  Future<void> fetchProducts() async {
+    try {
+      final response = await http.get(
+        Uri.parse("https://fakestoreapi.com/products"),
+      );
+
+      if (response.statusCode == 200) {
+        final List data = json.decode(response.body);
+        setState(() {
+          products = data.map((e) => Product.fromJson(e)).toList();
+          isLoading = false;
+        });
+      } else {
+        setState(() {
+          errorMessage = "Failed to load products";
+          isLoading = false;
+        });
+      }
+    } catch (e) {
+      setState(() {
+        errorMessage = "Error: $e";
+        isLoading = false;
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
+    if (isLoading) {
+      return const Scaffold(body: Center(child: CircularProgressIndicator()));
+    }
+
+    if (errorMessage != null) {
+      return Scaffold(
+        appBar: AppBar(title: const Text("Home")),
+        body: Center(child: Text(errorMessage!)),
+      );
+    }
+
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Product List (ລາຍການສິນຄ້າ)'),
-        backgroundColor: Colors.green,
-      ),
-      drawer: const AppDrawer(),
-      body: Padding(
-        padding: const EdgeInsets.all(8.0),
-        child: GridView.builder(
-          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-            crossAxisCount: 2,
-            crossAxisSpacing: 10,
-            mainAxisSpacing: 10,
-            childAspectRatio: 0.8,
+      appBar: AppBar(title: const Text("Products")),
+      body: Container(
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            colors: [Colors.yellow, Colors.blue, Colors.white24],
+            begin: Alignment.bottomLeft,
+            end: Alignment.topRight,
           ),
+        ),
+        child: ListView.builder(
           itemCount: products.length,
           itemBuilder: (context, index) {
+            final product = products[index];
             return Card(
-              elevation: 5,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(15),
-              ),
-              child: InkWell(
+              margin: const EdgeInsets.all(8),
+              child: ListTile(
+                leading: Image.network(
+                  product.image,
+                  width: 50,
+                  height: 50,
+                  fit: BoxFit.cover,
+                ),
+                title: Text(
+                  product.title,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+                subtitle: Text("\$${product.price}"),
                 onTap: () {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
-                      content: Text('ທ່ານກົດ ${products[index]['name']}'),
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => ProductDetail(product: product),
                     ),
                   );
                 },
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: <Widget>[
-                    Icon(
-                      products[index]['icon'] as IconData,
-                      size: 60,
-                      color: Colors.green,
-                    ),
-                    const SizedBox(height: 10),
-                    Text(
-                      products[index]['name'] as String,
-                      style: const TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    const SizedBox(height: 5),
-                    Text(
-                      products[index]['price'] as String,
-                      style: const TextStyle(
-                        fontSize: 16,
-                        color: Colors.red,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                  ],
-                ),
               ),
             );
           },

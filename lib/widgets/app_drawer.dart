@@ -31,17 +31,6 @@ class AppDrawer extends StatelessWidget {
             onTap: () => _navigateTo(context, '/'),
           ),
           const Divider(),
-          ListTile(
-            leading: const Icon(Icons.shopping_bag),
-            title: const Text('ໜ້າ Product'),
-            onTap: () => _navigateTo(context, '/products'),
-          ),
-          const Divider(),
-          ListTile(
-            leading: const Icon(Icons.person),
-            title: const Text('ໜ້າ Developer'),
-            onTap: () => _navigateTo(context, '/developer'),
-          ),
           const AboutListTile(
             icon: Icon(Icons.info),
             applicationName: 'Demo App',

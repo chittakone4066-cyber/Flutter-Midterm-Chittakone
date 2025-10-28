@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_midterm/widgets/app_drawer.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'product_detail.dart';
@@ -63,6 +64,7 @@ class _ProductScreenState extends State<ProductScreen> {
 
     return Scaffold(
       appBar: AppBar(title: const Text("Products")),
+      drawer: AppDrawer(),
       body: Container(
         decoration: BoxDecoration(
           gradient: LinearGradient(

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_midterm/models/transaction.dart';
 import 'package:flutter_midterm/providers/transaction_provider.dart';
+import 'package:flutter_midterm/widgets/app_drawer.dart';
 import 'package:provider/provider.dart';
 
 class FormScreen extends StatefulWidget {
@@ -29,6 +30,7 @@ class _FormScreenState extends State<FormScreen> {
         title: const Text("ເພີ່ມລາຍການ"),
         backgroundColor: Colors.blueAccent,
       ),
+      drawer: AppDrawer(),
       body: SingleChildScrollView(
         child: Padding(
           padding: const EdgeInsets.all(20.0),
